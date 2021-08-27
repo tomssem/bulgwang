@@ -1,0 +1,66 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 71d3fa2a2c935a4802257af7acb88be9d0c56c43e23d310f5c4ea477eff75bbc
+
+name:           bulgwang
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/bulgwang#readme>
+homepage:       https://github.com/githubuser/bulgwang#readme
+bug-reports:    https://github.com/githubuser/bulgwang/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2021 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/bulgwang
+
+library
+  exposed-modules:
+      Lib
+      Phoityne.Example.Maths
+  other-modules:
+      Paths_bulgwang
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable bulgwang-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_bulgwang
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bulgwang
+  default-language: Haskell2010
+
+test-suite bulgwang-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Phoityne.Example.MathsSpec
+      SpecHelper
+      Paths_bulgwang
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bulgwang
+    , hspec
+  default-language: Haskell2010
