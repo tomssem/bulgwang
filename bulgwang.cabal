@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 71d3fa2a2c935a4802257af7acb88be9d0c56c43e23d310f5c4ea477eff75bbc
+-- hash: c870d991cf2c9f51a73437c60634fdaa8d614b06cf37f37c3bff3f448279d871
 
 name:           bulgwang
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Expressions
       Lib
       Phoityne.Example.Maths
   other-modules:
@@ -53,6 +54,7 @@ test-suite bulgwang-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      ExpressionsSpec
       Phoityne.Example.MathsSpec
       SpecHelper
       Paths_bulgwang
