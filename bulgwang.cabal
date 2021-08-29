@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c870d991cf2c9f51a73437c60634fdaa8d614b06cf37f37c3bff3f448279d871
+-- hash: af964b108543781aef77276851c496c1afa408908a7597823a660ad32a6f30d3
 
 name:           bulgwang
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Expressions
+      ExpressionsHelper
       Lib
       Phoityne.Example.Maths
   other-modules:
