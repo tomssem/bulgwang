@@ -45,6 +45,19 @@ instance (Num a, Eq a) => Expable [[a]] a where
                 where n = length $ head x
                       allSameLength = all (== head x) (tail x)
 
+{-|
+Allows us to easily add together haskell primatives.
+>>> toExp 1
+WAS NOW CS (Scalar 1)
+NOW Could not deduce (Expable a0 b)
+NOW from the context: (Expable a b, Num a)
+NOW   bound by the inferred type for ‘it’:
+NOW              forall a b. (Expable a b, Num a) => Exp b
+NOW   at /home/tom/haskell/bulgwang/src/ExpressionsHelper.hs:49:2-8
+NOW The type variable ‘a0’ is ambiguous
+
+
+-}
 (|+) :: (Expable a c, Expable b c) => a -> b -> Exp c
 (|+) x y = Plus (toExp x) (toExp y)
 
