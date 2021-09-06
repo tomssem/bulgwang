@@ -13,8 +13,6 @@ Provides base defintions of expressions which can be used to build up more compl
 -}
 module Expressions where
 
-type Index = Exp Integer
-
 newtype (Num a) => Scalar a = Scalar a
     deriving (Eq, Show)
 
@@ -33,13 +31,13 @@ data Matrix a = Matrix {mm::Int, mn::Int, mels::[Vector a]}
 CS (Scalar 1)
 
 -}
-data Exp a
-    = CS (Scalar a) -- constant scalar
-    | CV (Vector a) -- constant vector
-    | CM (Matrix a) -- constant matrix
+data Exp
+    = CS (Scalar Float) -- constant scalar
+    | CV (Vector Float) -- constant vector
+    | CM (Matrix Float) -- constant matrix
     | CVar Var
-    | Plus {lhs:: Exp a, rhs:: Exp a} -- addition
-    | Mult {lhs:: Exp a, rhs:: Exp a} -- multiplication
-    | Indx {exp::Exp a, idx::Index} -- indexing into an expression, second argument is the index
-    | Sum {exp::Exp a, var::Var, from::Index, to::Index}
+    | Plus {lhs:: Exp, rhs:: Exp} -- addition
+    | Mult {lhs:: Exp, rhs:: Exp} -- multiplication
+    | Indx {exp::Exp, idx::Exp} -- indexing into an expression, second argument is the index
+    | Sum {exp::Exp, var::Var, from::Exp, to::Exp}
     deriving (Eq, Show)

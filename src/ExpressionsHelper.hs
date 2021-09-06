@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-|
 Module      : ExpressionsHelper
 Description : Syntactic sugar for expressions
@@ -21,29 +22,48 @@ import Expressions ( Exp(Plus, Indx, CVar, CS, CV, CM, Sum), Var( Var ), Scalar 
 import Control.Exception (assert)
 import Data.Function ( on )
 
-class Expable a b where
-    toExp :: a -> Exp b
+class Expable a where
+    toExp :: a -> Exp
 
-instance Expable (Exp a) a where
+{-|
+>>> toExp (CS (Scalar 1))
+Could not deduce (Expable (Exp a0) b)
+from the context: (Expable (Exp a) b, Num a)
+  bound by the inferred type for ‘it’:
+             forall a b. (Expable (Exp a) b, Num a) => Exp b
+  at /home/tom/haskell/bulgwang/src/ExpressionsHelper.hs:27:2-22
+The type variable ‘a0’ is ambiguous
+-}
+instance Expable Exp where
     toExp = id
 
-instance Expable String a where
+{-|
+>>> toExp "hello"
+CVar (Var "hello")
+-}
+instance Expable String where
     toExp = CVar . Var
 
-instance (Num a) => Expable a a where
+{-|
+Implicitly converts all nums to floats
+-}
+instance Expable Float where
     toExp = CS . Scalar
 
-instance (Num a) => Expable [a] a where
+instance Expable [Float] where
     toExp [] = error "We don't allow empty vectors"
     toExp x = CV $ Vector (length x) (map Scalar x)
 
-instance (Num a, Eq a) => Expable [[a]] a where
-    toExp [] = error "We don't allow empty matrices"
-    toExp x = if not allSameLength
-                then error "All vectors in matrix must be same length"
-                else CM $ Matrix (length x) n (map (Vector n . map Scalar) x)
-                where n = length $ head x
-                      allSameLength = all (== head x) (tail x)
+instance Expable [[Float]]where
+    toExp [] = error "Dimension m of matrix is 0"
+    toExp x
+      | n == 0 = error "Dimension n of matrix is 0"
+      | not allSameLength = error "All vectors in matrix must be same length"
+      | otherwise = CM $ Matrix (length x) n (map toVector x)
+      where
+          n = length $ head x
+          allSameLength = all ((== n) . length) (tail x)
+          toVector = Vector n . map Scalar
 
 {-|
 Allows us to easily add together haskell primatives.
@@ -58,11 +78,11 @@ NOW The type variable ‘a0’ is ambiguous
 
 
 -}
-(|+) :: (Expable a c, Expable b c) => a -> b -> Exp c
+(|+) :: (Expable a, Expable b) => a -> b -> Exp
 (|+) x y = Plus (toExp x) (toExp y)
 
-(|!) :: (Expable a c, Expable b Integer) => a -> b -> Exp c
+(|!) :: (Expable a, Expable b) => a -> b -> Exp
 (|!) x y = Indx (toExp x) (toExp y)
 
-sigma :: (Expable a Integer, Expable b Integer, Expable c d) => String -> a -> b -> c -> Exp d
+sigma :: (Expable a, Expable b, Expable c) => String -> a -> b -> c -> Exp
 sigma v f t e = Sum (toExp e) (Var v) (toExp f) (toExp t)
