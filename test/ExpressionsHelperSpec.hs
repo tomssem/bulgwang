@@ -26,7 +26,22 @@ spec = describe "ExpressionsHelper" $ do
             toExp ([1.0::Float, 2.0::Float] |!! (1 :: Int)) `shouldBe` Indx {ex = CV (Vector {n = 2, els = [1.0,2.0]}), idx = CI 1}
     describe "sigma" $ do
         it "should construct summ expressions" $ do
-            toExp (sigma "X" (1 :: Int) (10 :: Int) ("X" |+ (2.0 :: Float))) `shouldBe` Sum {ex = Plus {lhs = CVar "X", rhs = CS 2.0}, var = "X", from = CI 1, to = CI 10}
+            toExp (sigma "X" (1 :: Int) (10 :: Int) ("X" |+ (2.0 :: Float))) `shouldBe`
+                Sum {ex = Plus {lhs = CVar "X",
+                                rhs = CS 2.0},
+                     var = "X",
+                     from = CI 1,
+                     to = CI 10}
+    it "can build more complex expressions (linear model)" $ do
+        toExp ("b0" |+ sigma "i" (1::Int) "n" (("w" |!! "i") |. ("x" |!! "i"))) `shouldBe`
+            Plus {lhs = CVar "b0",
+                  rhs = Sum {ex = Prod {lhs = Indx {ex = CVar "w",
+                                                    idx = CVar "i"},
+                                        rhs = Indx {ex = CVar "x",
+                                                    idx = CVar "i"}},
+                             var = "i",
+                             from = CI 1,
+                             to = CVar "n"}}
 
 main :: IO ()
 main = hspec spec

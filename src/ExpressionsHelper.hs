@@ -11,7 +11,10 @@ License     : MIT
 Maintainer  : tfwnicholson@gmail.com
 Stability   : experimental
 
-Gives us some nicer syntax for building up Bulgwang expressions
+Gives us some nicer syntax for building up Bulgwang expressions, for example for a linear model:
+
+>>> toExp $ "b0" |+ sigma "i" (1::Int) "n" (("w" |!! "i") |. ("x" |!! "i"))
+Plus {lhs = CVar "b0", rhs = Sum {ex = Prod {lhs = Indx {ex = CVar "w", idx = CVar "i"}, rhs = Indx {ex = CVar "x", idx = CVar "i"}}, var = "i", from = CI 1, to = CVar "n"}}
 -}
 
 -- For equations 2.1 would like to be able to do:
