@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DatatypeContexts #-}
 {-|
 Module      : Expressions
@@ -13,17 +12,17 @@ Provides base defintions of expressions which can be used to build up more compl
 -}
 module Expressions where
 
-newtype (Num a) => Scalar a = Scalar a
+type Index = Int
+
+type Scalar = Float
+
+data Vector = Vector {n::Int, els::[Scalar]}
     deriving (Eq, Show)
 
-data Vector a = Vector {n::Int, els::[Scalar a]}
-    deriving (Eq, Show)
+type Var = String
 
-newtype Var = Var String
-    deriving (Eq, Show)
-
---Matrices are mxn represented in column normal form
-data Matrix a = Matrix {mm::Int, mn::Int, mels::[Vector a]}
+--Matrices are m-by-n, represented in column normal form
+data Matrix = Matrix {mm::Int, mn::Int, mels::[Vector]}
     deriving (Eq, Show)
 
 {-|
@@ -32,12 +31,13 @@ CS (Scalar 1)
 
 -}
 data Exp
-    = CS (Scalar Float) -- constant scalar
-    | CV (Vector Float) -- constant vector
-    | CM (Matrix Float) -- constant matrix
+    = CS Scalar -- constant scalar
+    | CI Index -- constant index value
+    | CV Vector -- constant vector
+    | CM Matrix -- constant matrix
     | CVar Var
     | Plus {lhs:: Exp, rhs:: Exp} -- addition
-    | Mult {lhs:: Exp, rhs:: Exp} -- multiplication
-    | Indx {exp::Exp, idx::Exp} -- indexing into an expression, second argument is the index
-    | Sum {exp::Exp, var::Var, from::Exp, to::Exp}
+    | Prod {lhs:: Exp, rhs:: Exp} -- multiplication
+    | Indx {ex::Exp, idx::Exp} -- indexing into an expression, second argument is the index
+    | Sum {ex::Exp, var::Var, from::Exp, to::Exp}
     deriving (Eq, Show)
