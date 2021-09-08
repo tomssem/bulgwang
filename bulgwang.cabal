@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a0056ad5f30f2a837f0e056aad0a554acd5e856caa0d06f15401e6d193ba0d0f
+-- hash: 028bcf9f7f620b9cff0f0fb09fe2d5ed5285ffb7f4cda74b424d6b7460c49df9
 
 name:           bulgwang
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       ExpressionsHelper
       Lib
       Phoityne.Example.Maths
+      Typer
   other-modules:
       Paths_bulgwang
   hs-source-dirs:
