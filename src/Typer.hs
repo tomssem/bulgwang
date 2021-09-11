@@ -39,10 +39,11 @@ type BinaryErrorType = EType -> EType -> EType
 {-|
 Check that binary operators (between homogenous types) behave as defined by the supplied type functions
 -}
-checkBinaryOperatorType :: TypeMapping -> Exp -> Exp -> EType -> VectorBinaryCheckerType -> MatrixBinaryCheckerType -> BinaryErrorType -> EType
-checkBinaryOperatorType types lhs rhs scalarCase vectorCase matrixCase errorCase =
+checkBinaryOperatorType :: TypeMapping -> Exp -> Exp -> EType -> EType -> VectorBinaryCheckerType -> MatrixBinaryCheckerType -> BinaryErrorType -> EType
+checkBinaryOperatorType types lhs rhs scalarCase indexCase vectorCase matrixCase errorCase =
     case (lhsType, rhsType) of
         (TScalar, TScalar) -> scalarCase
+        (TIndex, TIndex) -> indexCase
         (TVector n1, TVector n2) -> vectorCase n1 n2
         (TMatrix m1 n1, TMatrix m2 n2) -> matrixCase m1 n1 m2 n2
         _ -> errorCase lhsType rhsType
@@ -55,18 +56,16 @@ checkElementWiseSizeVector lhs rhs n1 n2 opName  = if n1 == n2
                                     else TError $ "Vectors " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible size for " ++ opName
 
 checkPlusType :: TypeMapping -> Exp -> Exp -> EType
-checkPlusType types lhs rhs = checkBinaryOperatorType types lhs rhs scalarCase vectorCase matrixCase errorCase
-    where scalarCase = TScalar
-          vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "addition"
+checkPlusType types lhs rhs = checkBinaryOperatorType types lhs rhs TScalar TIndex vectorCase matrixCase errorCase
+    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "addition"
           matrixCase m1 n1 m2 n2 = if m1 == m2 && n1 == n2
                                     then TMatrix m1 n1
                                     else TError $ "Matrices " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible size for addition"
           errorCase lhsType rhsType = TError $ "Cannot perform addition on types " ++ show lhsType ++ " and " ++ show rhsType
 
 checkProdType :: TypeMapping -> Exp -> Exp -> EType
-checkProdType types lhs rhs = checkBinaryOperatorType types lhs rhs scalarCase vectorCase matrixCase errorCase
-    where scalarCase = TScalar
-          vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "product"
+checkProdType types lhs rhs = checkBinaryOperatorType types lhs rhs TScalar TIndex vectorCase matrixCase errorCase
+    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "product"
           matrixCase m1 n1 m2 n2 = if n1 == m1
                                     then TMatrix m1 n2
                                     else TError $ "Matrices " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible shape for product"

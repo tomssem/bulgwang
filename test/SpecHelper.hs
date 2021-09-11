@@ -8,3 +8,4 @@ import Test.Hspec
 import Phoityne.Example.Maths
 import ExpressionsHelper
 import Expressions
+import Typer
