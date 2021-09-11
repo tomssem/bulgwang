@@ -11,8 +11,6 @@ type TypeMapping = Var -> EType
 
 {-|
 The type of the result of an expression
->>> :t show
-show :: Show a => a -> String
 -}
 data EType
     = TError String
@@ -22,7 +20,26 @@ data EType
     | TMatrix Int Int
     deriving (Eq, Show)
 
-checkBinaryOperatorType :: TypeMapping -> Exp -> Exp -> EType -> (Int -> Int ->EType) -> (Int -> Int -> Int -> Int -> EType) -> (EType -> EType -> EType) -> EType
+{-|
+The type of check functions that operate on the dimensions of two vectors
+-}
+type VectorBinaryCheckerType = Int -> Int ->EType
+
+{-|
+The type of check functions that operate onthe dimensions of two matrices
+-}
+type MatrixBinaryCheckerType = Int -> Int -> Int -> Int -> EType
+
+{-|
+The type of error creation function that takes two operands of a binary operator and returns an object representing the error of performing that operation
+on operators of those types
+-}
+type BinaryErrorType = EType -> EType -> EType
+
+{-|
+Check that binary operators (between homogenous types) behave as defined by the supplied type functions
+-}
+checkBinaryOperatorType :: TypeMapping -> Exp -> Exp -> EType -> VectorBinaryCheckerType -> MatrixBinaryCheckerType -> BinaryErrorType -> EType
 checkBinaryOperatorType types lhs rhs scalarCase vectorCase matrixCase errorCase =
     case (lhsType, rhsType) of
         (TScalar, TScalar) -> scalarCase
