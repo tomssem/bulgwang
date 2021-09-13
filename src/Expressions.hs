@@ -21,7 +21,7 @@ data Vector = Vector {n::Int, els::[Scalar]}
 
 type Var = String
 
---Matrices are m-by-n, represented in column normal form
+--Matrices are m-by-n, represented in row normal form
 data Matrix = Matrix {mm::Int, mn::Int, mels::[Vector]}
     deriving (Eq, Show)
 
@@ -38,6 +38,8 @@ data Exp
     | CVar Var
     | Plus {lhs:: Exp, rhs:: Exp} -- addition
     | Prod {lhs:: Exp, rhs:: Exp} -- multiplication
-    | Indx {ex::Exp, idx::Exp} -- indexing into an expression, second argument is the index
+    | Indx {ex::Exp, idx::Exp} -- indexing into an expression, second argument is the index.
+                               -- Indexing into vector yields scalar at that position
+                               -- Indexing into matrix yields matrix row at that position
     | Sum {ex::Exp, var::Var, from::Exp, to::Exp}
     deriving (Eq, Show)

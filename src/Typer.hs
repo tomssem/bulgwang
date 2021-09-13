@@ -50,14 +50,17 @@ checkBinaryOperatorType types lhs rhs scalarCase indexCase vectorCase matrixCase
     where lhsType = checkType types lhs
           rhsType = checkType types rhs
 
-checkElementWiseSizeVector :: Exp -> Exp -> Int -> Int -> String -> EType
-checkElementWiseSizeVector lhs rhs n1 n2 opName  = if n1 == n2
-                                    then TVector n1
+checkElementWiseSizeVector :: Exp -> Exp -> Int -> Int -> EType -> String -> EType
+checkElementWiseSizeVector lhs rhs n1 n2 resultType opName  = if n1 == n2
+                                    then resultType
                                     else TError $ "Vectors " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible size for " ++ opName
 
+{-|
+Currently don't support addition of non-homogenous types
+-}
 checkPlusType :: TypeMapping -> Exp -> Exp -> EType
 checkPlusType types lhs rhs = checkBinaryOperatorType types lhs rhs TScalar TIndex vectorCase matrixCase errorCase
-    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "addition"
+    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 (TVector n1) "addition"
           matrixCase m1 n1 m2 n2 = if m1 == m2 && n1 == n2
                                     then TMatrix m1 n1
                                     else TError $ "Matrices " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible size for addition"
@@ -65,8 +68,8 @@ checkPlusType types lhs rhs = checkBinaryOperatorType types lhs rhs TScalar TInd
 
 checkProdType :: TypeMapping -> Exp -> Exp -> EType
 checkProdType types lhs rhs = checkBinaryOperatorType types lhs rhs TScalar TIndex vectorCase matrixCase errorCase
-    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 "product"
-          matrixCase m1 n1 m2 n2 = if n1 == m1
+    where vectorCase n1 n2 = checkElementWiseSizeVector lhs rhs n1 n2 TScalar "product"
+          matrixCase m1 n1 m2 n2 = if n1 == m2
                                     then TMatrix m1 n2
                                     else TError $ "Matrices " ++ show lhs ++ " and " ++ show rhs ++ " are incompatible shape for product"
           errorCase lhsType rhsType = TError $ "Can not take a product of types " ++ show lhsType ++ " and " ++ show rhsType
@@ -87,7 +90,7 @@ checkIndexType types ex index =
     if isIndexType types index
         then (case checkType types ex of
                 TVector _ -> TScalar
-                TMatrix m n -> TVector n
+                TMatrix m n -> TVector m
                 _ -> TError $ "Can not index into expression of type " ++ show (checkType types ex))
         else TError $ "Can only index using index type, not" ++ show (checkType types index)
 
