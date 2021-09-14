@@ -4,7 +4,7 @@ import Data.Map (Map, (!))
 import qualified Data.Map as Map
 
 import SpecHelper
-import Typer ( checkType, EType(TScalar, TIndex, TVector, TMatrix), EType)
+import Typer ( checkType, EType(TScalar, TIndex, TVector, TMatrix, TError), EType)
 
 emptyTypes = (!) (Map.empty :: (Map String EType))
 
@@ -44,6 +44,13 @@ spec = describe "Typer" $ do
                 checkType emptyTypes ([1::Float] |+ [2::Float]) `shouldBe` TVector 1
             it "can type pluses of matrices" $ do
                 checkType emptyTypes ([[1::Float, 2, 3], [4, 5, 6]] |+ [[10::Float, 11, 12], [13, 14, 15]]) `shouldBe` TMatrix 2 3
+            it "doesn't allow addition between non-homogenous types" $ do
+                checkType emptyTypes ([1::Float, 2] |+ (3::Float)) `shouldBe` TError "Can not perform addition on types TVector 2 and TScalar"
+            it "doesn't allow addition between vectors of different dimensions" $ do
+                checkType emptyTypes ([1::Float, 3] |+ [2::Float]) `shouldBe` TError "Vectors TVector 2 and TVector 1 are incompatible size for addition"
+            it "doesn't allow addition between matrices of different dimensions" $ do
+                checkType emptyTypes ([[1::Float, 2, 3], [4, 5, 6]] |+ [[10::Float, 11, 12, 13], [13, 14, 15, 16]]) `shouldBe` 
+                    TError "Matrices TMatrix 2 3 and TMatrix 2 4 are incompatible size for addition"
         describe "multiplication" $ do
             it "can multiply scalars" $ do
                  checkType emptyTypes ((1.0 :: Float) |. (2.0 :: Float)) `shouldBe` TScalar
@@ -53,15 +60,32 @@ spec = describe "Typer" $ do
                 checkType emptyTypes ([1::Float, 2] |. [3::Float, 4]) `shouldBe` TScalar
             it "can multiple matrices" $ do
                 checkType emptyTypes ([[1::Float, 2, 3], [3, 4, 5]] |. [[7::Float, 8], [9, 10], [11, 12]]) `shouldBe` TMatrix 2 2
+            it "doesn't allow multiplication between nonhomogenous types" $ do
+                checkType emptyTypes ([1::Float, 2] |. (3::Float)) `shouldBe` TError "Can not take a product of types TVector 2 and TScalar"
+            it "doesnt allow multiplication between vectors of different dimensions" $ do
+                checkType emptyTypes ([1::Float, 3] |. [2::Float]) `shouldBe` TError "Vectors TVector 2 and TVector 1 are incompatible size for product"
+            it "doesn't allow multiplication between vectors of different dimensions" $ do
+                checkType emptyTypes ([[1::Float, 2, 3], [4, 5, 6]] |. [[10::Float, 11, 12, 13], [13, 14, 15, 16]]) `shouldBe` 
+                    TError "Matrices TMatrix 2 3 and TMatrix 2 4 are incompatible size for product"
         describe "index expressions" $ do
             it "vectors" $ do
                 checkType emptyTypes ([1::Float, 2, 3] |!! (0::Int)) `shouldBe` TScalar
             it "matrices" $ do
                 checkType emptyTypes ([[1::Float, 2, 3], [3, 4, 5]] |!! (0::Int)) `shouldBe` TVector 2
+            it "doesn't allow indexing into silly types" $ do
+                checkType emptyTypes ((1::Float) |!! (0::Int)) `shouldBe` TError "Can not index into expression of type TScalar"
+            it "doesn't allow indexing with silly types" $ do
+                checkType emptyTypes ([[1::Float, 2, 3], [3, 4, 5]] |!! (0::Float)) `shouldBe` TError "Can only index using TIndex type, not TScalar"
         describe "sum expressions" $ do
             it "types vectors properly" $ do
                 checkType emptyTypes (sigma "x" (1::Int) (1::Int) [1::Float, 2]) `shouldBe` TScalar
+            it "types matrices properly" $ do
                 checkType emptyTypes (sigma "x" (1::Int) (1::Int) [[1::Float, 2, 3], [3, 4, 5]]) `shouldBe` TVector 2
+            it "types doesn't allow indexing into Scalars" $ do
+                checkType emptyTypes (sigma "x" (1::Int) (1::Int) (1::Float)) `shouldBe` TError "Can not index into expression of type TScalar"
+            it "types doesn't allow indexing with Scalars" $ do
+                checkType emptyTypes (sigma "x" (1::Float) (1::Int) [1::Float, 2]) `shouldBe` TError "Can not index with expression of type TScalar"
+                checkType emptyTypes (sigma "x" (1::Int) (1::Float) [1::Float, 2]) `shouldBe` TError "Can not index with expression of type TScalar"
 
 
 
