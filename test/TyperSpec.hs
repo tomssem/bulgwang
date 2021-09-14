@@ -9,7 +9,7 @@ import Typer ( checkType, EType(TScalar, TIndex, TVector, TMatrix), EType)
 emptyTypes = (!) (Map.empty :: (Map String EType))
 
 
-expectVarTypes :: EType -> Expectation 
+expectVarTypes :: EType -> Expectation
 expectVarTypes t = checkType (\x -> if x == "X" then t else error "") (CVar "X") `shouldBe` t
 
 {-|
@@ -20,7 +20,7 @@ spec :: Spec
 spec = describe "Typer" $ do
     describe "checkTypes" $ do
         describe "raw types" $ do
-            it "can deal with scalar types" $ do 
+            it "can deal with scalar types" $ do
                 checkType emptyTypes (CS (1::Float)) `shouldBe` TScalar
             it "can deal with index types" $ do
                 checkType emptyTypes (CI (1::Int)) `shouldBe` TIndex
@@ -33,13 +33,13 @@ spec = describe "Typer" $ do
                 expectVarTypes (TVector 3)
             it "can deal with var types of type matrix" $ do
                 expectVarTypes (TMatrix  6 3)
-        describe "addition" $ do 
+        describe "addition" $ do
             it "can type pluses of scalars" $ do
-                checkType emptyTypes ((1.0 :: Float) |+ (2.0 :: Float)) `shouldBe` TScalar 
+                checkType emptyTypes ((1.0 :: Float) |+ (2.0 :: Float)) `shouldBe` TScalar
             it "can type pluses of Index" $ do
                 checkType emptyTypes ((1::Int) |+ (2::Int)) `shouldBe` TIndex
             it "can type pluses of vectors length 2" $ do
-                checkType emptyTypes ([1::Float, 2] |+ [3::Float, 4]) `shouldBe` TVector 2 
+                checkType emptyTypes ([1::Float, 2] |+ [3::Float, 4]) `shouldBe` TVector 2
             it "can type pluses of vectors length 1" $ do
                 checkType emptyTypes ([1::Float] |+ [2::Float]) `shouldBe` TVector 1
             it "can type pluses of matrices" $ do
@@ -58,6 +58,10 @@ spec = describe "Typer" $ do
                 checkType emptyTypes ([1::Float, 2, 3] |!! (0::Int)) `shouldBe` TScalar
             it "matrices" $ do
                 checkType emptyTypes ([[1::Float, 2, 3], [3, 4, 5]] |!! (0::Int)) `shouldBe` TVector 2
+        describe "sum expressions" $ do
+            it "types vectors properly" $ do
+                checkType emptyTypes (sigma "x" (1::Int) (1::Int) [1::Float, 2]) `shouldBe` TScalar
+                checkType emptyTypes (sigma "x" (1::Int) (1::Int) [[1::Float, 2, 3], [3, 4, 5]]) `shouldBe` TVector 2
 
 
 
